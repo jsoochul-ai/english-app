@@ -1,167 +1,109 @@
-# data.py 파일에 이 내용을 통째로 복사해서 붙여넣으세요!
+import streamlit as st
+from gtts import gTTS
+import io
+from audio_recorder_streamlit import audio_recorder
+import speech_recognition as sr
+import re
 
-scenarios = {
-    # --- [공항 및 비행기] ---
-    "✈️ [공항 1] 탑승 수속 (Check-in)": {
-        "description": "공항 카운터에서 비행기 탑승 수속을 하고 수하물을 부치는 상황입니다.",
-        "dialogue": [
-            ("직원", "Where are you flying to today?", "오늘 어디로 가시나요?"),
-            ("나", "I'm flying to New York.", "뉴욕으로 갑니다."),
-            ("직원", "May I see your passport and ticket, please?", "여권과 항공권을 보여주시겠습니까?"),
-            ("나", "Here you are. Can I get an aisle seat?", "여기 있습니다. 통로 쪽 좌석으로 받을 수 있을까요?"),
-            ("직원", "Sure. Are you checking any bags?", "네. 위탁 수하물이 있으신가요?"),
-            ("나", "Yes, just this one suitcase.", "네, 이 캐리어 하나입니다.")
-        ]
-    },
-    "✈️ [공항 2] 보안 검색대 (Security Check)": {
-        "description": "보안 검색대를 통과하며 직원의 지시에 따르는 상황입니다.",
-        "dialogue": [
-            ("직원", "Please empty your pockets and put your electronics in the bin.", "주머니를 비우시고 전자기기는 바구니에 넣어주세요."),
-            ("나", "Do I need to take off my shoes?", "신발도 벗어야 하나요?"),
-            ("직원", "Yes, shoes and jackets off, please.", "네, 신발과 재킷 모두 벗어주세요."),
-            ("나", "Okay. Is this laptop fine here?", "알겠습니다. 노트북은 여기 두면 되나요?"),
-            ("직원", "Yes. Now step through the scanner, please.", "네. 이제 스캐너를 통과해 주세요.")
-        ]
-    },
-    "✈️ [공항 3] 기내 서비스 요청 (In-flight)": {
-        "description": "비행기 안에서 승무원에게 필요한 것을 요청하는 상황입니다.",
-        "dialogue": [
-            ("승무원", "Would you like something to drink?", "마실 것 좀 준비해 드릴까요?"),
-            ("나", "Can I get a cup of water and some apple juice?", "물 한 잔이랑 사과 주스 좀 주시겠어요?"),
-            ("승무원", "Here you go. Anything else?", "여기 있습니다. 더 필요한 건 없으신가요?"),
-            ("나", "Could I also get an extra blanket? It's a bit cold.", "담요를 하나 더 받을 수 있을까요? 조금 춥네요.")
-        ]
-    },
-    "✈️ [공항 4] 수하물 분실 신고 (Lost Baggage)": {
-        "description": "도착지에서 위탁 수하물이 나오지 않아 분실 신고를 하는 아찔한 상황입니다.",
-        "dialogue": [
-            ("나", "Excuse me, my baggage hasn't come out yet.", "실례합니다, 제 수하물이 아직 안 나왔어요."),
-            ("직원", "May I see your baggage claim tag?", "수하물 표를 보여주시겠습니까?"),
-            ("나", "Here it is. It's a large silver suitcase.", "여기 있습니다. 큰 은색 캐리어입니다."),
-            ("직원", "Let me check the system. Please fill out this form.", "시스템을 확인해 보겠습니다. 이 서류를 작성해 주세요.")
-        ]
-    },
+# 💡 핵심: 대본은 data.py 파일에서 불러옵니다!
+from data import scenarios
 
-    # --- [교통 수단] ---
-    "🚕 [교통 1] 택시 타기 (Taking a Taxi)": {
-        "description": "공항에서 택시를 타고 목적지를 말하며 이동하는 상황입니다.",
-        "dialogue": [
-            ("기사", "Where to, sir?", "어디로 모실까요, 손님?"),
-            ("나", "To the Hilton Hotel downtown, please.", "시내에 있는 힐튼 호텔로 가주세요."),
-            ("기사", "Sure thing. It'll take about 40 minutes.", "알겠습니다. 40분 정도 걸립니다."),
-            ("나", "How much will it cost roughly?", "대략 요금이 얼마나 나올까요?"),
-            ("기사", "It should be around 50 dollars.", "50달러 정도 될 겁니다.")
-        ]
-    },
-    "🚇 [교통 2] 지하철/버스 길 묻기 (Directions)": {
-        "description": "현지에서 지하철역이나 목적지로 가는 길을 물어보는 상황입니다.",
-        "dialogue": [
-            ("나", "Excuse me, could you tell me how to get to the nearest subway station?", "실례지만, 가장 가까운 지하철역으로 가는 길을 알려주시겠어요?"),
-            ("행인", "Go straight for two blocks and turn right.", "두 블록 직진하시고 오른쪽으로 도세요."),
-            ("나", "Is it far to walk?", "걸어가기엔 먼가요?"),
-            ("행인", "Not at all. It's only a 5-minute walk.", "전혀요. 걸어서 5분밖에 안 걸립니다.")
-        ]
-    },
+st.set_page_config(page_title="나만의 영어 단짝", page_icon="🗣️", layout="wide")
 
-    # --- [호텔 및 숙소] ---
-    "🏨 [숙소 1] 호텔 체크인 (Hotel Check-in)": {
-        "description": "예약한 호텔에 도착해 체크인하고 객실을 안내받는 상황입니다.",
-        "dialogue": [
-            ("직원", "Welcome! How can I help you?", "환영합니다! 무엇을 도와드릴까요?"),
-            ("나", "I'd like to check in. The reservation is under Kim.", "체크인하고 싶습니다. 김 이름으로 예약했습니다."),
-            ("직원", "I see your reservation for three nights. May I have your credit card for incidentals?", "3박 예약 확인되었습니다. 보증금 결제를 위해 신용카드를 주시겠습니까?"),
-            ("나", "Here you are. What time is breakfast served?", "여기 있습니다. 조식은 몇 시에 제공되나요?"),
-            ("직원", "Breakfast is from 7 AM to 10 AM on the first floor.", "조식은 1층에서 오전 7시부터 10시까지입니다.")
-        ]
-    },
-    "🏨 [숙소 2] 룸서비스 및 수건 요청 (Room Service)": {
-        "description": "객실에서 프론트 데스크로 전화해 필요한 물품을 요청하는 상황입니다.",
-        "dialogue": [
-            ("직원", "Front desk, how may I help you?", "프론트 데스크입니다, 무엇을 도와드릴까요?"),
-            ("나", "Hi, I'm in room 402. Could we get some extra towels?", "안녕하세요, 402호입니다. 수건 좀 더 받을 수 있을까요?"),
-            ("직원", "Of course. Anything else you need?", "물론입니다. 더 필요하신 게 있나요?"),
-            ("나", "Yes, could you also send up two bottles of water?", "네, 생수도 두 병 올려보내 주시겠어요?"),
-            ("직원", "I'll send someone right up.", "바로 직원을 올려보내겠습니다.")
-        ]
-    },
-    "🏨 [숙소 3] 객실 문제 해결 (Room Issues)": {
-        "description": "객실의 에어컨이나 화장실에 문제가 생겨 수리를 요청하는 상황입니다.",
-        "dialogue": [
-            ("나", "I have a problem in my room. The air conditioner isn't working.", "방에 문제가 좀 있습니다. 에어컨이 작동하지 않아요."),
-            ("직원", "I apologize for the inconvenience. What is your room number?", "불편을 드려 죄송합니다. 객실 번호가 어떻게 되시나요?"),
-            ("나", "It's room 505. It's too hot in here.", "505호입니다. 안이 너무 덥네요."),
-            ("직원", "I will send a maintenance person immediately.", "즉시 수리 직원을 보내겠습니다.")
-        ]
-    },
-    "🏨 [숙소 4] 체크아웃 및 짐 보관 (Check-out)": {
-        "description": "호텔 체크아웃을 하며 남은 시간 동안 짐을 맡겨두는 상황입니다.",
-        "dialogue": [
-            ("직원", "Are you checking out? How was your stay?", "체크아웃하시나요? 머무시는 동안 어떠셨습니까?"),
-            ("나", "It was wonderful, thank you. Here is the key.", "정말 좋았습니다, 감사합니다. 여기 키 있습니다."),
-            ("직원", "You're all set. Do you need a taxi to the airport?", "결제 완료되었습니다. 공항 가는 택시가 필요하신가요?"),
-            ("나", "No, thanks. But can I leave my luggage here until 3 PM?", "아니요, 괜찮습니다. 하지만 오후 3시까지 여기에 짐을 좀 맡길 수 있을까요?"),
-            ("직원", "Certainly. I'll give you a baggage tag.", "물론입니다. 수하물 보관증을 드리겠습니다.")
-        ]
-    }
-},# --- [식당 및 카페] ---
-    "🍽️ [식당 1] 식당 예약 및 안내 (Reservation)": {
-        "description": "인기 있는 현지 레스토랑에 도착해 예약 여부를 확인하고 자리를 안내받습니다.",
-        "dialogue": [
-            ("직원", "Good evening. Do you have a reservation?", "안녕히 주무세요. 예약하셨나요?"),
-            ("나", "Yes, I have a reservation for two at 7 PM under Kim.", "네, 김 이름으로 저녁 7시 두 명 예약했습니다."),
-            ("직원", "Let me check. Ah, here it is. Right this way, please.", "확인해 보겠습니다. 아, 여기 있네요. 이쪽으로 안내해 드릴게요."),
-            ("나", "Could we get a table by the window if possible?", "가능하다면 창가 자리로 앉을 수 있을까요?"),
-            ("직원", "Certainly. Here are your menus.", "물론입니다. 여기 메뉴판입니다.")
-        ]
-    },
-    "🍽️ [식당 2] 메뉴 주문하기 (Ordering)": {
-        "description": "메뉴판을 보고 메인 요리와 음료를 주문하는 상황입니다.",
-        "dialogue": [
-            ("직원", "Are you ready to order?", "주문하시겠습니까?"),
-            ("나", "What do you recommend for the main dish?", "메인 요리로 어떤 것을 추천하시나요?"),
-            ("직원", "Our signature steak is very popular.", "저희 시그니처 스테이크가 아주 인기가 많습니다."),
-            ("나", "I'll have that, please. Medium-rare.", "그걸로 할게요. 미디엄 레어로 부탁합니다."),
-            ("직원", "Excellent choice. Anything to drink?", "탁월한 선택입니다. 마실 것은 준비해 드릴까요?"),
-            ("나", "Just tap water for now, thank you.", "일단 수돗물(기본 물)로 주세요, 감사합니다.")
-        ]
-    },
-    "🍽️ [식당 3] 식사 후 계산하기 (Paying the bill)": {
-        "description": "식사를 마치고 직원에게 계산서를 요청하며 결제하는 상황입니다.",
-        "dialogue": [
-            ("나", "Excuse me, could we have the bill, please?", "실례합니다, 계산서 좀 주시겠어요?"),
-            ("직원", "Of course. How was everything today?", "물론입니다. 오늘 식사는 어떠셨나요?"),
-            ("나", "Everything was delicious. Can I pay with a credit card?", "모두 맛있었습니다. 신용카드로 결제할 수 있나요?"),
-            ("직원", "Yes, we accept all major cards. I'll take that for you.", "네, 주요 카드는 모두 받습니다. 제가 결제해 드릴게요.")
-        ]
-    },
+st.sidebar.title("📚 내 학습 보관소")
+st.sidebar.caption("지난 대화도 언제든 검색해서 다시 꺼내볼 수 있습니다.")
 
-    # --- [쇼핑 및 관광] ---
-    "🛍️ [쇼핑 1] 은 액세서리 구매 (Buying Jewelry)": {
-        "description": "현지 쥬얼리 샵에서 마음에 드는 은반지와 귀걸이를 둘러보고 사이즈를 묻는 상황입니다.",
-        "dialogue": [
-            ("직원", "Are you looking for anything special?", "특별히 찾으시는 게 있나요?"),
-            ("나", "I'm just browsing, but these silver rings caught my eye.", "그냥 둘러보고 있는데, 이 은반지들이 눈에 띄네요."),
-            ("직원", "They are our new arrivals. Would you like to try them on?", "신상품입니다. 한번 착용해 보시겠어요?"),
-            ("나", "Yes, please. Do you have this one in a smaller size?", "네. 이거 조금 더 작은 사이즈도 있나요?"),
-            ("직원", "Let me check the stock for you. Just a moment.", "재고가 있는지 확인해 드릴게요. 잠시만요.")
-        ]
-    },
-    "🛍️ [쇼핑 2] 옷 사이즈 교환 (Exchange)": {
-        "description": "전날 산 옷의 사이즈가 맞지 않아 매장에 다시 방문해 교환을 요청합니다.",
-        "dialogue": [
-            ("나", "Hi, I bought this shirt yesterday, but it's a bit too small.", "안녕하세요, 어제 이 셔츠를 샀는데 조금 작네요."),
-            ("직원", "Do you have the receipt with you?", "영수증을 가지고 계신가요?"),
-            ("나", "Yes, here it is. Can I exchange it for a larger size?", "네, 여기 있습니다. 더 큰 사이즈로 교환할 수 있을까요?"),
-            ("직원", "Sure. You can pick out a different size from that rack.", "물론입니다. 저쪽 행거에서 다른 사이즈를 고르시면 됩니다.")
-        ]
-    },
-    "📸 [관광 1] 사진 촬영 부탁하기 (Taking pictures)": {
-        "description": "유명한 관광 명소에서 지나가는 외국인에게 사진을 찍어달라고 부탁합니다.",
-        "dialogue": [
-            ("나", "Excuse me, could you take a picture of us, please?", "실례지만, 저희 사진 좀 찍어주시겠어요?"),
-            ("행인", "Sure! Just press this button?", "물론이죠! 이 버튼을 누르면 되나요?"),
-            ("나", "Yes, that's right. Could you get the building in the background?", "네, 맞습니다. 배경에 건물이 다 나오게 찍어주실 수 있나요?"),
-            ("행인", "Okay. One, two, three! Say cheese!", "알겠습니다. 하나, 둘, 셋! 치즈!"),
-            ("나", "Thank you so much. Have a great day!", "정말 감사합니다. 좋은 하루 보내세요!")
-        ]
-    }
+selected_topic = st.sidebar.selectbox("🔍 주제 검색 및 선택:", list(scenarios.keys()))
+st.sidebar.write("---")
+st.sidebar.info("💡 깃허브의 'data.py' 파일에 대본을 추가하면 이곳에 자동으로 나타납니다!")
+
+current_data = scenarios[selected_topic]
+dialogue = current_data["dialogue"]
+
+st.title(selected_topic)
+st.caption(current_data["description"])
+st.write("---")
+
+tab1, tab2, tab3 = st.tabs(["📖 전체 대화", "🗣️ 한 문장 연습", "🎭 실전 롤플레잉 (AI 채점)"])
+
+with tab1:
+    st.subheader("1. 대화 흐름 파악하기")
+    st.write("🎧 **전체 대화 이어서 듣기**")
+    full_english_text = " ".join([eng for role, eng, kor in dialogue])
+    tts_full = gTTS(text=full_english_text, lang='en', slow=False)
+    audio_io_full = io.BytesIO()
+    tts_full.write_to_fp(audio_io_full)
+    st.audio(audio_io_full, format='audio/mp3')
+    
+    st.write("---")
+    for role, eng, kor in dialogue:
+        if role in ["직원", "손님", "친구", "승무원", "기사", "행인"]:
+            st.info(f"**{role}:** {eng} \n\n({kor})")
+        else:
+            st.success(f"**나:** {eng} \n\n({kor})")
+
+with tab2:
+    st.subheader("2. 문장별 집중 연습")
+    options = [f"[{role}] {eng}" for role, eng, kor in dialogue]
+    selected_option = st.selectbox("연습할 문장을 고르세요:", options)
+    
+    idx = options.index(selected_option)
+    role, eng_text, kor_text = dialogue[idx]
+    st.write(f"**한글 뜻:** {kor_text}")
+    
+    tts_sentence = gTTS(text=eng_text, lang='en', slow=False)
+    audio_io_sentence = io.BytesIO()
+    tts_sentence.write_to_fp(audio_io_sentence)
+    st.audio(audio_io_sentence, format='audio/mp3')
+
+def clean_text(text):
+    return re.sub(r'[^a-z0-9\s]', '', text.lower()).strip()
+
+with tab3:
+    st.subheader("3. 실전 롤플레잉 & AI 발음 채점")
+    
+    turns = [f"{i+1}단계" for i in range(len(dialogue)//2)]
+    step = st.radio("진행할 대화 단계를 선택하세요:", turns, horizontal=True)
+    
+    step_idx = turns.index(step) * 2
+    staff_turn = dialogue[step_idx]
+    my_turn = dialogue[step_idx + 1]
+    
+    st.info(f"**{staff_turn[0]}:** {staff_turn[1]} \n\n({staff_turn[2]})")
+    tts_staff = gTTS(text=staff_turn[1], lang='en', slow=False)
+    audio_io_staff = io.BytesIO()
+    tts_staff.write_to_fp(audio_io_staff)
+    st.audio(audio_io_staff, format='audio/mp3')
+    
+    st.write("---")
+    st.write("👇 **내가 대답할 정답 문장:**")
+    st.success(f"**나:** {my_turn[1]} \n\n({my_turn[2]})")
+    
+    st.write("🎙️ **마이크를 켜고 정답 문장을 말해보세요!**")
+    audio_value = audio_recorder(text="터치하여 말하기", icon_size="2x", pause_threshold=3.0)
+    
+    if audio_value:
+        st.audio(audio_value)
+        st.write("⏳ AI가 발음을 분석 중입니다...")
+        try:
+            r = sr.Recognizer()
+            audio_file = io.BytesIO(audio_value)
+            with sr.AudioFile(audio_file) as source:
+                audio_data = r.record(source)
+            
+            recognized_text = r.recognize_google(audio_data, language="en-US")
+            st.write(f"📝 **AI가 들은 내 목소리:** {recognized_text}")
+            
+            target_clean = clean_text(my_turn[1])
+            recog_clean = clean_text(recognized_text)
+            
+            if target_clean == recog_clean:
+                st.success("🎉 완벽합니다! 원어민과 똑같이 발음하셨네요!")
+            elif recog_clean in target_clean or target_clean in recog_clean:
+                st.warning("👍 좋습니다! 핵심 단어가 전달되어 의사소통이 가능합니다.")
+            else:
+                st.error("💪 다르게 인식되었어요! 원어민 발음을 다시 듣고 시도해 보세요.")
+        except sr.UnknownValueError:
+            st.error("앗, 목소리가 잘 안 들렸어요. 다시 시도해 주세요!")
+        except Exception as e:
+            st.error("마이크 인식 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.")
