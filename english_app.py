@@ -21,7 +21,6 @@ dialogue = [
 with tab1:
     st.subheader("1. 대화 흐름 파악하기")
     
-    # 💡 1단계: 전체 대화를 하나로 합쳐서 음성으로 만들어주는 기능 추가!
     st.write("🎧 **전체 대화 한 번에 이어서 듣기**")
     full_english_text = " ".join([eng for role, eng, kor in dialogue])
     tts_full = gTTS(text=full_english_text, lang='en', slow=False)
@@ -31,7 +30,6 @@ with tab1:
     
     st.write("---")
     
-    # 기존 대화 텍스트
     for role, eng, kor in dialogue:
         if role == "직원":
             st.info(f"**직원:** {eng} \n\n({kor})")
@@ -44,7 +42,6 @@ with tab2:
     selected_eng = st.selectbox("연습할 문장을 고르세요:", list(my_lines.keys()))
     st.write(f"**뜻:** {my_lines[selected_eng]}")
     
-    # 원어민 발음 듣기
     tts = gTTS(text=selected_eng, lang='en', slow=False)
     audio_io = io.BytesIO()
     tts.write_to_fp(audio_io)
@@ -53,10 +50,12 @@ with tab2:
 with tab3:
     st.subheader("3. 실전 롤플레잉 (직원의 말에 대답해 보세요!)")
     st.info(f"**직원:** {dialogue[2][1]} \n\n(오늘 라운딩하기 딱 좋은 날씨네요!)")
-    st.write("👇 아래 문장을 직접 말해서 대답해 보세요.")
+    st.write("👇 마이크를 한 번 톡 누르고 대답한 뒤, 다시 터치해서 완료하세요.")
     st.success(f"**나:** {dialogue[3][1]} \n\n(감사합니다. 천천히 걸어가 볼까요?)")
     
-    audio_value = audio_recorder(text="마이크를 터치해서 영어로 대답하세요", icon_size="2x")
+    # 💡 녹음이 2초 만에 끊기지 않도록 대기 시간(pause_threshold)을 3초로 늘렸습니다!
+    audio_value = audio_recorder(text="마이크 터치 (3초 대기 가능)", icon_size="2x", pause_threshold=3.0)
+    
     if audio_value:
         st.write("✅ 훌륭합니다! 실전처럼 아주 잘 대답하셨습니다.")
         st.audio(audio_value)
