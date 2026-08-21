@@ -5,52 +5,46 @@ from audio_recorder_streamlit import audio_recorder
 
 st.set_page_config(page_title="나만의 영어 단짝", page_icon="🗣️")
 
-st.markdown("""
-    <style>
-        .big-english { font-size: 28px !important; font-weight: bold; text-align: center; color: #1E3A8A; }
-        .meaning-korean { font-size: 18px !important; text-align: center; color: #4B5563; margin-bottom: 20px; }
-    </style>
-""", unsafe_allow_html=True)
+st.title("⛳ 실전 파크골프 영어 회화")
+st.write("상황: 파크골프장에 도착해 체크인을 하고 장비를 빌려 라운딩을 시작합니다.")
 
-st.title("🍽️ 오늘의 회화: 리조트 레스토랑")
+# 3개의 탭 생성
+tab1, tab2, tab3 = st.tabs(["📖 전체 대화", "🗣️ 한 문장 연습", "🎭 실전 롤플레잉"])
 
-# 10개 문장 사전 만들기
-sentences = {
-    "I'd like to book a table for dinner tonight.": "오늘 저녁 식사 자리를 예약하고 싶습니다.",
-    "We have a reservation under the name Kim.": "김 이름으로 예약했습니다.",
-    "Could we get a table by the window, please?": "창가 쪽 자리로 앉을 수 있을까요?",
-    "Can I see the wine list, please?": "와인 메뉴판 좀 볼 수 있을까요?",
-    "What is the signature dish here?": "이곳의 대표 메뉴는 무엇인가요?",
-    "I'll have the steak, medium-rare, please.": "스테이크 미디엄 레어로 할게요.",
-    "Excuse me, could I get some more water?": "실례하지만, 물 좀 더 주시겠어요?",
-    "Everything was delicious, thank you.": "음식은 모두 맛있었습니다, 감사합니다.",
-    "Could we have the bill, please?": "계산서 좀 주시겠어요?",
-    "Can I charge this to my room?": "이것을 제 객실 요금으로 달아둘 수 있을까요?"
-}
+dialogue = [
+    ("직원", "Hello, I'd like to check in for my tee time.", "안녕하세요, 티타임 체크인하려고 합니다."),
+    ("나", "It's under Kim. I also need to rent a park golf club.", "예약자 이름은 김입니다. 파크골프 채도 하나 빌려야 해요."),
+    ("직원", "Here is your club. The weather is perfect for a round today!", "여기 채 있습니다. 오늘 라운딩하기 딱 좋은 날씨네요!"),
+    ("나", "Thank you. Shall we walk slowly?", "감사합니다. 천천히 걸어가 볼까요?")
+]
 
-# 문장 선택하는 드롭다운 메뉴
-english_list = list(sentences.keys())
-selected_eng = st.selectbox("👇 오늘 연습할 문장을 선택해 주세요:", english_list)
-selected_kor = sentences[selected_eng]
+with tab1:
+    st.subheader("1. 대화 흐름 파악하기")
+    for role, eng, kor in dialogue:
+        if role == "직원":
+            st.info(f"**직원:** {eng} \n\n({kor})")
+        else:
+            st.success(f"**나:** {eng} \n\n({kor})")
 
-st.write("---")
+with tab2:
+    st.subheader("2. 내 대사 집중 연습")
+    my_lines = {eng: kor for role, eng, kor in dialogue if role == "나"}
+    selected_eng = st.selectbox("연습할 문장을 고르세요:", list(my_lines.keys()))
+    st.write(f"**뜻:** {my_lines[selected_eng]}")
+    
+    # 원어민 발음 듣기
+    tts = gTTS(text=selected_eng, lang='en', slow=False)
+    audio_io = io.BytesIO()
+    tts.write_to_fp(audio_io)
+    st.audio(audio_io, format='audio/mp3')
 
-# 선택된 문장 화면에 크게 보여주기
-st.markdown(f'<p class="big-english">{selected_eng}</p>', unsafe_allow_html=True)
-st.markdown(f'<p class="meaning-korean">{selected_kor}</p>', unsafe_allow_html=True)
-
-# 원어민 음성 듣기
-tts = gTTS(text=selected_eng, lang='en', slow=False)
-audio_io = io.BytesIO()
-tts.write_to_fp(audio_io)
-st.audio(audio_io, format='audio/mp3')
-
-st.write("---")
-st.write("🎙️ **스마트폰에서 더 잘 작동하는 마이크 녹음!** 아래 마이크를 눌러 내 발음을 녹음해 보세요.")
-
-# 녹음기
-audio_value = audio_recorder(text="터치해서 영어로 대답하세요", icon_size="2x")
-
-if audio_value:
-    st.success("✅ 녹음 완료! 내 목소리와 원어민 발음을 비교해 보세요.")
-    st.audio(audio_value)
+with tab3:
+    st.subheader("3. 실전 롤플레잉 (직원의 말에 대답해 보세요!)")
+    st.info(f"**직원:** {dialogue[2][1]} \n\n(오늘 라운딩하기 딱 좋은 날씨네요!)")
+    st.write("👇 아래 문장을 직접 말해서 대답해 보세요.")
+    st.success(f"**나:** {dialogue[3][1]} \n\n(감사합니다. 천천히 걸어가 볼까요?)")
+    
+    audio_value = audio_recorder(text="마이크를 터치해서 영어로 대답하세요", icon_size="2x")
+    if audio_value:
+        st.write("✅ 훌륭합니다! 실전처럼 아주 잘 대답하셨습니다.")
+        st.audio(audio_value)
