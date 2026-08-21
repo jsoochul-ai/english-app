@@ -5,7 +5,7 @@ from audio_recorder_streamlit import audio_recorder
 import speech_recognition as sr
 import re
 
-# 💡 핵심: 대본은 data.py 파일에서 불러옵니다!
+# 💡 대본은 아까 완벽하게 만드신 data.py 파일에서 자동으로 불러옵니다!
 from data import scenarios
 
 st.set_page_config(page_title="나만의 영어 단짝", page_icon="🗣️", layout="wide")
