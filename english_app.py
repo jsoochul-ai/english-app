@@ -4,22 +4,28 @@ import io
 from audio_recorder_streamlit import audio_recorder
 import speech_recognition as sr
 import re
+from datetime import datetime
 
-# 우리가 만든 대본 메모장(data.py)에서 시나리오 불러오기!
+# 우리가 만든 대본 메모장(data.py)에서 시나리오 불러오기
 from data import scenarios 
 
 st.set_page_config(page_title="나만의 영어 단짝", page_icon="✈️", layout="wide")
 
-# 💡 1번 문제 해결: 다크모드에서도 버튼 글자가 무조건 까맣게 보이도록 강제 고정!
+# 💡 1번 해결: 어떤 모드에서도 예쁘게 보이는 '밝은 네이비' 버튼 디자인
 st.markdown("""
     <style>
     div.stButton > button {
-        color: #1E1E1E !important; 
+        color: #1D4ED8 !important; /* 밝고 세련된 네이비 블루 */
         font-weight: bold !important;
-        border: 1px solid #ccc !important;
+        border: 2px solid #1D4ED8 !important;
+        background-color: transparent !important;
     }
     div.stButton > button p {
-        color: #1E1E1E !important;
+        color: #1D4ED8 !important;
+        font-size: 16px !important;
+    }
+    div.stButton > button:hover {
+        background-color: #EFF6FF !important; /* 누를 때 살짝 하늘색 배경 */
     }
     </style>
 """, unsafe_allow_html=True)
@@ -28,19 +34,25 @@ st.markdown("<h2 style='text-align: center;'>✈️ 나만의 영어 단짝</h2>
 st.markdown("<p style='text-align: center;'>하루 10분, 나를 위한 맞춤형 회화 도서관</p>", unsafe_allow_html=True)
 st.write("---")
 
-# 💡 2번 문제 해결: 예습/복습 버튼에 대본 연결하기
+# 💡 2번 해결: 매일 밤 12시가 지나면 알아서 진도가 넘어가는 자동 달력 엔진!
 scenario_list = list(scenarios.keys())
+num_scenarios = len(scenario_list)
 
-# data.py에 있는 순서대로 오늘, 어제, 내일 학습 분량 배정
-topic_today = scenario_list[0]    # 1번째 대본
-topic_yesterday = scenario_list[1] # 2번째 대본
-topic_tomorrow = scenario_list[2]  # 3번째 대본
+# 1년 중 며칠째인지 계산해서 매일 새로운 대본을 띄워줍니다.
+current_day = datetime.now().timetuple().tm_yday
 
-# 스마트폰이 어떤 버튼을 눌렀는지 기억하게 만드는 '세션 상태' 기능
+today_idx = current_day % num_scenarios
+yesterday_idx = (today_idx - 1) % num_scenarios
+tomorrow_idx = (today_idx + 1) % num_scenarios
+
+topic_today = scenario_list[today_idx]
+topic_yesterday = scenario_list[yesterday_idx]
+topic_tomorrow = scenario_list[tomorrow_idx]
+
+# 스마트폰이 어떤 버튼을 눌렀는지 기억하게 만드는 기능
 if "current_topic" not in st.session_state:
     st.session_state.current_topic = None
 
-# 버튼을 누르면 해당 주제가 '현재 학습할 주제'로 바뀝니다.
 if st.button(f"📖 1. 오늘의 학습 ({topic_today})", use_container_width=True):
     st.session_state.current_topic = topic_today
 
@@ -52,11 +64,10 @@ if st.button(f"🚀 3. 내일 예습 ({topic_tomorrow})", use_container_width=Tr
 
 st.write("---")
 
-# 아무 버튼도 안 눌렀을 땐 안내 문구만 띄우고, 누르면 학습 탭이 아래로 쫙 펼쳐집니다!
+# 대본이 펼쳐지는 부분
 if st.session_state.current_topic is None:
     st.info("💡 위 버튼을 눌러 연습을 시작해 보세요!")
 else:
-    # 버튼과 연결된 대본 가져오기
     current_data = scenarios[st.session_state.current_topic]
     dialogue = current_data["dialogue"]
 
