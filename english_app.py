@@ -4,27 +4,37 @@ import io
 from audio_recorder_streamlit import audio_recorder
 import speech_recognition as sr
 import re
-
-# 💡 대본은 아까 완벽하게 만드신 data.py 파일에서 자동으로 불러옵니다!
 from data import scenarios
 
-st.set_page_config(page_title="나만의 영어 단짝", page_icon="🗣️", layout="wide")
+# 📱 1. 페이지 기본 설정 (스마트폰에 최적화된 중앙 정렬)
+st.set_page_config(page_title="나만의 영어 단짝", page_icon="🚀", layout="centered")
 
-st.sidebar.title("📚 내 학습 보관소")
-st.sidebar.caption("지난 대화도 언제든 검색해서 다시 꺼내볼 수 있습니다.")
+# 🎨 2. 사이드바: 세련된 메뉴판 디자인
+with st.sidebar:
+    st.title("🚀 My English App")
+    st.caption("나만의 맞춤형 회화 도서관")
+    st.write("---")
+    
+    # 터치하기 편한 라디오 버튼으로 메뉴 변경
+    selected_topic = st.radio(
+        "👇 학습할 대본을 선택하세요",
+        list(scenarios.keys())
+    )
+    
+    st.write("---")
+    # 향후 업데이트될 나만의 맞춤 카테고리 예고편
+    st.success("💡 **Next Update 예고**\n\n💍 외국인 고객 응대 (Jeloday)\n⛳ 골프장 조인 라운딩\n⚾ 롯데 자이언츠 스몰토크")
 
-selected_topic = st.sidebar.selectbox("🔍 주제 검색 및 선택:", list(scenarios.keys()))
-st.sidebar.write("---")
-st.sidebar.info("💡 깃허브의 'data.py' 파일에 대본을 추가하면 이곳에 자동으로 나타납니다!")
-
+# ✨ 3. 메인 화면 헤더 장식
 current_data = scenarios[selected_topic]
 dialogue = current_data["dialogue"]
 
 st.title(selected_topic)
-st.caption(current_data["description"])
+st.info(f"📍 **상황 설명:** {current_data['description']}")
 st.write("---")
 
-tab1, tab2, tab3 = st.tabs(["📖 전체 대화", "🗣️ 한 문장 연습", "🎭 실전 롤플레잉 (AI 채점)"])
+# 📑 4. 깔끔해진 탭 메뉴
+tab1, tab2, tab3 = st.tabs(["📖 전체 대화", "🗣️ 한 문장 연습", "🎙️ 실전 롤플레잉 (AI 채점)"])
 
 with tab1:
     st.subheader("1. 대화 흐름 파악하기")
@@ -38,7 +48,7 @@ with tab1:
     st.write("---")
     for role, eng, kor in dialogue:
         if role in ["직원", "손님", "친구", "승무원", "기사", "행인"]:
-            st.info(f"**{role}:** {eng} \n\n({kor})")
+            st.warning(f"**{role}:** {eng} \n\n({kor})")
         else:
             st.success(f"**나:** {eng} \n\n({kor})")
 
@@ -49,7 +59,7 @@ with tab2:
     
     idx = options.index(selected_option)
     role, eng_text, kor_text = dialogue[idx]
-    st.write(f"**한글 뜻:** {kor_text}")
+    st.markdown(f"**💡 한글 뜻:** {kor_text}")
     
     tts_sentence = gTTS(text=eng_text, lang='en', slow=False)
     audio_io_sentence = io.BytesIO()
@@ -69,7 +79,7 @@ with tab3:
     staff_turn = dialogue[step_idx]
     my_turn = dialogue[step_idx + 1]
     
-    st.info(f"**{staff_turn[0]}:** {staff_turn[1]} \n\n({staff_turn[2]})")
+    st.warning(f"**{staff_turn[0]}:** {staff_turn[1]} \n\n({staff_turn[2]})")
     tts_staff = gTTS(text=staff_turn[1], lang='en', slow=False)
     audio_io_staff = io.BytesIO()
     tts_staff.write_to_fp(audio_io_staff)
@@ -100,7 +110,7 @@ with tab3:
             if target_clean == recog_clean:
                 st.success("🎉 완벽합니다! 원어민과 똑같이 발음하셨네요!")
             elif recog_clean in target_clean or target_clean in recog_clean:
-                st.warning("👍 좋습니다! 핵심 단어가 전달되어 의사소통이 가능합니다.")
+                st.info("👍 좋습니다! 핵심 단어가 전달되어 의사소통이 가능합니다.")
             else:
                 st.error("💪 다르게 인식되었어요! 원어민 발음을 다시 듣고 시도해 보세요.")
         except sr.UnknownValueError:
