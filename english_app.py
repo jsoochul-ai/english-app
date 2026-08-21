@@ -103,4 +103,65 @@ scenarios = {
             ("직원", "Certainly. I'll give you a baggage tag.", "물론입니다. 수하물 보관증을 드리겠습니다.")
         ]
     }
-}
+},# --- [식당 및 카페] ---
+    "🍽️ [식당 1] 식당 예약 및 안내 (Reservation)": {
+        "description": "인기 있는 현지 레스토랑에 도착해 예약 여부를 확인하고 자리를 안내받습니다.",
+        "dialogue": [
+            ("직원", "Good evening. Do you have a reservation?", "안녕히 주무세요. 예약하셨나요?"),
+            ("나", "Yes, I have a reservation for two at 7 PM under Kim.", "네, 김 이름으로 저녁 7시 두 명 예약했습니다."),
+            ("직원", "Let me check. Ah, here it is. Right this way, please.", "확인해 보겠습니다. 아, 여기 있네요. 이쪽으로 안내해 드릴게요."),
+            ("나", "Could we get a table by the window if possible?", "가능하다면 창가 자리로 앉을 수 있을까요?"),
+            ("직원", "Certainly. Here are your menus.", "물론입니다. 여기 메뉴판입니다.")
+        ]
+    },
+    "🍽️ [식당 2] 메뉴 주문하기 (Ordering)": {
+        "description": "메뉴판을 보고 메인 요리와 음료를 주문하는 상황입니다.",
+        "dialogue": [
+            ("직원", "Are you ready to order?", "주문하시겠습니까?"),
+            ("나", "What do you recommend for the main dish?", "메인 요리로 어떤 것을 추천하시나요?"),
+            ("직원", "Our signature steak is very popular.", "저희 시그니처 스테이크가 아주 인기가 많습니다."),
+            ("나", "I'll have that, please. Medium-rare.", "그걸로 할게요. 미디엄 레어로 부탁합니다."),
+            ("직원", "Excellent choice. Anything to drink?", "탁월한 선택입니다. 마실 것은 준비해 드릴까요?"),
+            ("나", "Just tap water for now, thank you.", "일단 수돗물(기본 물)로 주세요, 감사합니다.")
+        ]
+    },
+    "🍽️ [식당 3] 식사 후 계산하기 (Paying the bill)": {
+        "description": "식사를 마치고 직원에게 계산서를 요청하며 결제하는 상황입니다.",
+        "dialogue": [
+            ("나", "Excuse me, could we have the bill, please?", "실례합니다, 계산서 좀 주시겠어요?"),
+            ("직원", "Of course. How was everything today?", "물론입니다. 오늘 식사는 어떠셨나요?"),
+            ("나", "Everything was delicious. Can I pay with a credit card?", "모두 맛있었습니다. 신용카드로 결제할 수 있나요?"),
+            ("직원", "Yes, we accept all major cards. I'll take that for you.", "네, 주요 카드는 모두 받습니다. 제가 결제해 드릴게요.")
+        ]
+    },
+
+    # --- [쇼핑 및 관광] ---
+    "🛍️ [쇼핑 1] 은 액세서리 구매 (Buying Jewelry)": {
+        "description": "현지 쥬얼리 샵에서 마음에 드는 은반지와 귀걸이를 둘러보고 사이즈를 묻는 상황입니다.",
+        "dialogue": [
+            ("직원", "Are you looking for anything special?", "특별히 찾으시는 게 있나요?"),
+            ("나", "I'm just browsing, but these silver rings caught my eye.", "그냥 둘러보고 있는데, 이 은반지들이 눈에 띄네요."),
+            ("직원", "They are our new arrivals. Would you like to try them on?", "신상품입니다. 한번 착용해 보시겠어요?"),
+            ("나", "Yes, please. Do you have this one in a smaller size?", "네. 이거 조금 더 작은 사이즈도 있나요?"),
+            ("직원", "Let me check the stock for you. Just a moment.", "재고가 있는지 확인해 드릴게요. 잠시만요.")
+        ]
+    },
+    "🛍️ [쇼핑 2] 옷 사이즈 교환 (Exchange)": {
+        "description": "전날 산 옷의 사이즈가 맞지 않아 매장에 다시 방문해 교환을 요청합니다.",
+        "dialogue": [
+            ("나", "Hi, I bought this shirt yesterday, but it's a bit too small.", "안녕하세요, 어제 이 셔츠를 샀는데 조금 작네요."),
+            ("직원", "Do you have the receipt with you?", "영수증을 가지고 계신가요?"),
+            ("나", "Yes, here it is. Can I exchange it for a larger size?", "네, 여기 있습니다. 더 큰 사이즈로 교환할 수 있을까요?"),
+            ("직원", "Sure. You can pick out a different size from that rack.", "물론입니다. 저쪽 행거에서 다른 사이즈를 고르시면 됩니다.")
+        ]
+    },
+    "📸 [관광 1] 사진 촬영 부탁하기 (Taking pictures)": {
+        "description": "유명한 관광 명소에서 지나가는 외국인에게 사진을 찍어달라고 부탁합니다.",
+        "dialogue": [
+            ("나", "Excuse me, could you take a picture of us, please?", "실례지만, 저희 사진 좀 찍어주시겠어요?"),
+            ("행인", "Sure! Just press this button?", "물론이죠! 이 버튼을 누르면 되나요?"),
+            ("나", "Yes, that's right. Could you get the building in the background?", "네, 맞습니다. 배경에 건물이 다 나오게 찍어주실 수 있나요?"),
+            ("행인", "Okay. One, two, three! Say cheese!", "알겠습니다. 하나, 둘, 셋! 치즈!"),
+            ("나", "Thank you so much. Have a great day!", "정말 감사합니다. 좋은 하루 보내세요!")
+        ]
+    }
