@@ -13,25 +13,26 @@ st.set_page_config(page_title="나만의 영어 단짝", page_icon="🎤", layou
 if 'my_records' not in st.session_state:
     st.session_state.my_records = []
 
-# 🎨 2. 사진과 비슷하게 만들기 위한 디자인 마법(CSS)
+# 🎨 2. 앱 디자인 꾸미기 (대본 카드 스타일 추가)
 st.markdown("""
 <style>
     .title-text { text-align: center; font-size: 24px; font-weight: bold; color: #1f3b4d; }
     .subtitle-text { text-align: center; font-size: 16px; color: #666; margin-bottom: 30px; }
     .sentence-card { 
-        background-color: #ffffff; padding: 15px; border-radius: 15px; 
-        box-shadow: 0px 4px 6px rgba(0,0,0,0.05); text-align: center; margin-bottom: 10px; border: 1px solid #f0f0f0;
+        padding: 15px; border-radius: 10px; 
+        box-shadow: 0px 2px 5px rgba(0,0,0,0.05); margin-bottom: 12px; 
     }
+    .role-label { font-size: 12px; font-weight: bold; margin-bottom: 5px; }
     .eng-text { font-size: 18px; font-weight: bold; color: #333; }
-    .kor-text { font-size: 14px; color: #888; margin-top: 5px; }
+    .kor-text { font-size: 14px; color: #777; margin-top: 5px; }
 </style>
 """, unsafe_allow_html=True)
 
-# 📑 3. 하단 메뉴바를 대신할 상단 탭 메뉴 (홈 / 내 기록 / 설정)
+# 📑 3. 상단 탭 메뉴 (홈 / 내 기록 / 설정)
 tab_home, tab_record, tab_settings = st.tabs(["🏠 홈", "📚 내 기록", "⚙️ 설정"])
 
 with tab_home:
-    # 주제 선택 (사진의 제목 부분)
+    # 주제 선택
     selected_topic = st.selectbox("오늘의 대화 주제를 선택하세요:", list(scenarios.keys()), label_visibility="collapsed")
     current_data = scenarios[selected_topic]
     dialogue = current_data["dialogue"]
@@ -39,7 +40,7 @@ with tab_home:
     st.markdown(f"<div class='title-text'>{selected_topic.split(']')[1].strip()}</div>", unsafe_allow_html=True)
     st.markdown("<div class='subtitle-text'>초급 (Beginner Level)</div>", unsafe_allow_html=True)
     
-    # 🎤 마이크와 보조 버튼들 (사진과 비슷한 레이아웃)
+    # 🎤 4. 마이크와 보조 버튼들
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col1:
@@ -54,7 +55,6 @@ with tab_home:
 
     with col2:
         st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-        # 마이크 녹음기 중앙 배치
         audio_value = audio_recorder(text="말씀해 보세요", icon_size="3x", pause_threshold=3.0)
         st.markdown("</div>", unsafe_allow_html=True)
 
@@ -63,21 +63,7 @@ with tab_home:
         st.write("")
         st.button("❤️\n표현 저장", use_container_width=True)
 
-    st.write("---")
-
-    # 📝 문장 카드들 (사진 하단의 네모 박스들)
-    st.write("👇 **핵심 문장 연습** (마이크를 켜고 따라해 보세요!)")
-    for role, eng, kor in dialogue:
-        if role == "나":
-            # 나만의 문장 카드 디자인
-            st.markdown(f"""
-            <div class='sentence-card'>
-                <div class='eng-text'>{eng}</div>
-                <div class='kor-text'>{kor}</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-    # 🤖 마이크 녹음 처리 및 내 기록에 저장하기
+    # 🤖 마이크 녹음 처리 (결과를 마이크 바로 밑에 보여줌)
     if audio_value:
         st.write("⏳ AI가 발음을 분석 중입니다...")
         try:
@@ -89,11 +75,7 @@ with tab_home:
             recognized_text = r.recognize_google(audio_data, language="en-US")
             st.success(f"🗣️ AI 인식 결과: **{recognized_text}**")
             
-            # 내 기록에 추가!
-            st.session_state.my_records.append({
-                "topic": selected_topic,
-                "said": recognized_text
-            })
+            st.session_state.my_records.append({"topic": selected_topic, "said": recognized_text})
             st.info("✅ '내 기록' 탭에 방금 하신 발음이 저장되었습니다!")
             
         except sr.UnknownValueError:
@@ -101,16 +83,41 @@ with tab_home:
         except Exception as e:
             st.error("오류가 발생했습니다.")
 
+    st.write("---")
+    
+    # 📖 5. 전체 대화 대본 (눈으로 보며 학습하기)
+    st.write("📖 **오늘의 대화 대본** (전체 듣기를 누르고 눈으로 따라 읽어보세요!)")
+    
+    for role, eng, kor in dialogue:
+        if role in ["직원", "손님", "친구", "승무원", "기사", "행인"]:
+            # 상대방 대사 (회색 띠)
+            st.markdown(f"""
+            <div class='sentence-card' style='background-color: #f8f9fa; border-left: 4px solid #adb5bd;'>
+                <div class='role-label' style='color: #6c757d;'>{role}</div>
+                <div class='eng-text'>{eng}</div>
+                <div class='kor-text'>{kor}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            # 나의 대사 (파란색 띠)
+            st.markdown(f"""
+            <div class='sentence-card' style='background-color: #e3f2fd; border-left: 4px solid #1976d2;'>
+                <div class='role-label' style='color: #1976d2;'>나</div>
+                <div class='eng-text'>{eng}</div>
+                <div class='kor-text'>{kor}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
 with tab_record:
     st.header("📚 내 학습 기록")
-    st.caption("내가 마이크로 연습했던 문장들이 여기에 차곡차곡 쌓입니다. (앱을 새로고침하면 초기화됩니다)")
+    st.caption("내가 마이크로 연습했던 문장들이 여기에 차곡차곡 쌓입니다. (앱을 껐다 켜면 초기화됩니다)")
     
     if len(st.session_state.my_records) == 0:
         st.info("아직 녹음된 기록이 없습니다. 홈에서 마이크를 켜고 말해보세요!")
     else:
-        for i, record in enumerate(reversed(st.session_state.my_records)):
+        for record in reversed(st.session_state.my_records):
             st.markdown(f"""
-            <div class='sentence-card' style='text-align: left;'>
+            <div class='sentence-card' style='background-color: #ffffff; border: 1px solid #e0e0e0;'>
                 <span style='color: #888; font-size: 12px;'>{record['topic']}</span><br>
                 <span class='eng-text'>🗣️ {record['said']}</span>
             </div>
