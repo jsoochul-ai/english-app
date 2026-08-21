@@ -2,3 +2,8 @@ streamlit
 gTTS
 audio-recorder-streamlit
 SpeechRecognition
+streamlit
+gTTS
+audio-recorder-streamlit
+SpeechRecognition
+pandas
