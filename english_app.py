@@ -8,12 +8,11 @@ import re
 st.set_page_config(page_title="나만의 영어 단짝", page_icon="🗣️", layout="wide")
 
 # -------------------------------------------------------------
-# 📚 무한 대화 은행 (이곳에 시나리오를 계속 추가할 수 있습니다)
+# 📚 무한 대화 은행 (이미지 URL 삭제하여 에러 방지)
 # -------------------------------------------------------------
 scenarios = {
     "✈️ [공항] 입국 심사": {
         "description": "해외 여행의 첫 관문! 긴장되는 입국 심사대에서 심사관의 질문에 대답합니다.",
-        "image": "https://images.unsplash.com/photo-1436491865332-7a615061c4ca?q=80&w=1000&auto=format&fit=crop",
         "dialogue": [
             ("직원", "May I see your passport and arrival card, please?", "여권과 입국 신고서를 보여주시겠습니까?"),
             ("나", "Here they are.", "여기 있습니다."),
@@ -25,7 +24,6 @@ scenarios = {
     },
     "⛳ [스포츠] 파크골프 라운딩": {
         "description": "해외 파크골프장에 도착해 체크인하고 라운딩을 시작합니다.",
-        "image": "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?q=80&w=1000&auto=format&fit=crop",
         "dialogue": [
             ("직원", "Hello! Do you have a reservation?", "안녕하세요! 예약하셨나요?"),
             ("나", "Yes, I booked a morning tee time under the name Kim.", "네, 김(Kim)이라는 이름으로 오전 티타임을 예약했습니다."),
@@ -50,7 +48,6 @@ dialogue = current_data["dialogue"]
 
 st.title(selected_topic)
 st.caption(current_data["description"])
-st.image(current_data["image"], use_column_width=True)
 st.write("---")
 
 tab1, tab2, tab3 = st.tabs(["📖 전체 대화", "🗣️ 한 문장 연습", "🎭 실전 롤플레잉 (AI 채점)"])
@@ -89,7 +86,6 @@ with tab2:
 
 # --- 탭 3: 실전 롤플레잉 & AI 발음 채점 ---
 def clean_text(text):
-    # 특수문자를 제거하고 소문자로 변환하여 비교하기 쉽게 만듦
     return re.sub(r'[^a-z0-9\s]', '', text.lower()).strip()
 
 with tab3:
@@ -117,7 +113,7 @@ with tab3:
     
     if audio_value:
         st.audio(audio_value)
-        st.write("⏳ AI가 회원님의 발음을 분석 중입니다...")
+        st.write("⏳ AI가 발음을 분석 중입니다...")
         
         try:
             r = sr.Recognizer()
@@ -125,11 +121,9 @@ with tab3:
             with sr.AudioFile(audio_file) as source:
                 audio_data = r.record(source)
             
-            # 구글 음성 인식(STT)을 사용해 영어로 텍스트 변환
             recognized_text = r.recognize_google(audio_data, language="en-US")
             st.write(f"📝 **AI가 들은 내 목소리:** {recognized_text}")
             
-            # 정답 문장과 내 발음 비교
             target_clean = clean_text(my_turn[1])
             recog_clean = clean_text(recognized_text)
             
@@ -141,6 +135,6 @@ with tab3:
                 st.error("💪 조금 다르게 인식되었어요! 원어민 발음을 다시 듣고 도전해 보세요.")
                 
         except sr.UnknownValueError:
-            st.error("앗, 목소리가 잘 안 들렸어요. 주변이 너무 시끄럽거나 발음이 뭉개졌을 수 있으니 다시 시도해 주세요!")
+            st.error("앗, 목소리가 잘 안 들렸어요. 다시 시도해 주세요!")
         except Exception as e:
             st.error("마이크 인식 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.")
