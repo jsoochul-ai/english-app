@@ -20,6 +20,18 @@ dialogue = [
 
 with tab1:
     st.subheader("1. 대화 흐름 파악하기")
+    
+    # 💡 1단계: 전체 대화를 하나로 합쳐서 음성으로 만들어주는 기능 추가!
+    st.write("🎧 **전체 대화 한 번에 이어서 듣기**")
+    full_english_text = " ".join([eng for role, eng, kor in dialogue])
+    tts_full = gTTS(text=full_english_text, lang='en', slow=False)
+    audio_io_full = io.BytesIO()
+    tts_full.write_to_fp(audio_io_full)
+    st.audio(audio_io_full, format='audio/mp3')
+    
+    st.write("---")
+    
+    # 기존 대화 텍스트
     for role, eng, kor in dialogue:
         if role == "직원":
             st.info(f"**직원:** {eng} \n\n({kor})")
