@@ -10,28 +10,45 @@ st.set_page_config(page_title="나만의 영어 단짝", page_icon="🎤", layou
 
 # 💾 세션 상태 (페이지 이동 및 내 기록 저장용)
 if 'page' not in st.session_state:
-    st.session_state.page = 'cover'  # 첫 화면은 'cover' (표지)
+    st.session_state.page = 'cover'
 if 'my_records' not in st.session_state:
     st.session_state.my_records = []
 
-# 🎨 공통 CSS 디자인 (표지용 디자인 추가)
+# 🎨 공통 CSS 디자인 (프리미엄 네이비 & 다크 모드)
 st.markdown("""
 <style>
-    .cover-title { text-align: center; font-size: 32px; font-weight: bold; color: #1f3b4d; margin-top: 60px; margin-bottom: 10px; }
-    .cover-subtitle { text-align: center; font-size: 16px; color: #666; margin-bottom: 60px; }
-    .title-text { text-align: center; font-size: 24px; font-weight: bold; color: #1f3b4d; margin-top: 10px; }
-    .subtitle-text { text-align: center; font-size: 15px; color: #666; margin-bottom: 20px; }
-    .sentence-card { padding: 15px; border-radius: 10px; box-shadow: 0px 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; }
-    .role-label { font-size: 13px; font-weight: bold; margin-bottom: 5px; }
-    .eng-text { font-size: 18px; font-weight: bold; color: #333; }
-    .kor-text { font-size: 14px; color: #777; margin-top: 5px; }
+    /* 앱 전체 배경을 딥 네이비로 변경 */
+    .stApp {
+        background-color: #0b1521; 
+    }
+    
+    /* 기본 글씨 색상을 흰색/밝은 회색으로 */
+    .stMarkdown, .stText, p, span, div, label {
+        color: #e0e6ed !important;
+    }
+
+    /* 표지 제목 */
+    .cover-title { text-align: center; font-size: 32px; font-weight: bold; color: #ffffff !important; margin-top: 60px; margin-bottom: 10px; }
+    .cover-subtitle { text-align: center; font-size: 16px; color: #8bb4e6 !important; margin-bottom: 60px; }
+    
+    /* 학습 화면 제목 */
+    .title-text { text-align: center; font-size: 24px; font-weight: bold; color: #ffffff !important; margin-top: 10px; }
+    .subtitle-text { text-align: center; font-size: 15px; color: #8bb4e6 !important; margin-bottom: 20px; }
+    
+    /* 대화 카드 디자인 (살짝 밝은 네이비 박스) */
+    .sentence-card { 
+        background-color: #162638 !important; 
+        padding: 15px; border-radius: 10px; 
+        box-shadow: 0px 4px 6px rgba(0,0,0,0.3); margin-bottom: 15px; 
+    }
+    .eng-text { font-size: 18px; font-weight: bold; color: #ffffff !important; }
+    .kor-text { font-size: 14px; color: #9fb3c8 !important; margin-top: 5px; }
 </style>
 """, unsafe_allow_html=True)
 
 def clean_text(text):
     return re.sub(r'[^a-z0-9\s]', '', text.lower()).strip()
 
-# 페이지 이동 함수
 def go_to_page(page_name):
     st.session_state.page = page_name
 
@@ -44,7 +61,6 @@ if st.session_state.page == 'cover':
     
     st.write("---")
     
-    # 3개의 메인 버튼
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("📖\n1. 오늘의\n학습", use_container_width=True):
@@ -60,13 +76,12 @@ if st.session_state.page == 'cover':
             st.rerun()
             
     st.write("---")
-    st.info("💡 **[1. 오늘의 학습]**을 눌러 우리가 만든 회화 연습을 시작해 보세요!")
+    st.info("💡 **[1. 오늘의 학습]**을 눌러 연습을 시작해 보세요!")
 
 # ==========================================
-# 📖 2. 오늘의 학습 (기존에 만들었던 메인 화면)
+# 📖 2. 오늘의 학습
 # ==========================================
 elif st.session_state.page == 'today':
-    # 뒤로가기 버튼
     if st.button("🔙 첫 화면으로 돌아가기"):
         go_to_page('cover')
         st.rerun()
@@ -92,9 +107,11 @@ elif st.session_state.page == 'today':
         st.write("---")
         for role, eng, kor in dialogue:
             if role in ["직원", "손님", "친구", "승무원", "기사", "행인"]:
-                st.markdown(f"<div class='sentence-card' style='background-color: #f8f9fa; border-left: 4px solid #adb5bd;'><div class='role-label' style='color: #6c757d;'>{role}</div><div class='eng-text'>{eng}</div><div class='kor-text'>{kor}</div></div>", unsafe_allow_html=True)
+                # 상대방 대사 (회색 띠)
+                st.markdown(f"<div class='sentence-card' style='border-left: 4px solid #8892b0;'><div style='font-size: 13px; font-weight: bold; color: #8892b0; margin-bottom: 5px;'>{role}</div><div class='eng-text'>{eng}</div><div class='kor-text'>{kor}</div></div>", unsafe_allow_html=True)
             else:
-                st.markdown(f"<div class='sentence-card' style='background-color: #e3f2fd; border-left: 4px solid #1976d2;'><div class='role-label' style='color: #1976d2;'>나</div><div class='eng-text'>{eng}</div><div class='kor-text'>{kor}</div></div>", unsafe_allow_html=True)
+                # 나의 대사 (파란색 띠)
+                st.markdown(f"<div class='sentence-card' style='border-left: 4px solid #4facfe;'><div style='font-size: 13px; font-weight: bold; color: #4facfe; margin-bottom: 5px;'>나</div><div class='eng-text'>{eng}</div><div class='kor-text'>{kor}</div></div>", unsafe_allow_html=True)
 
     with tab2:
         st.write("🗣️ **단계별로 상대방의 말을 듣고 대답해 보세요!**")
@@ -105,14 +122,14 @@ elif st.session_state.page == 'today':
         staff_turn = dialogue[step_idx]
         my_turn = dialogue[step_idx + 1]
         
-        st.markdown(f"<div class='sentence-card' style='background-color: #f8f9fa; border-left: 4px solid #adb5bd;'><div class='role-label' style='color: #6c757d;'>{staff_turn[0]}의 말</div><div class='eng-text'>{staff_turn[1]}</div><div class='kor-text'>{staff_turn[2]}</div></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='sentence-card' style='border-left: 4px solid #8892b0;'><div style='font-size: 13px; font-weight: bold; color: #8892b0; margin-bottom: 5px;'>{staff_turn[0]}의 말</div><div class='eng-text'>{staff_turn[1]}</div><div class='kor-text'>{staff_turn[2]}</div></div>", unsafe_allow_html=True)
         tts_staff = gTTS(text=staff_turn[1], lang='en', slow=False)
         audio_io_staff = io.BytesIO()
         tts_staff.write_to_fp(audio_io_staff)
         st.audio(audio_io_staff, format='audio/mp3')
         
         st.write("👇 **내가 대답할 정답 문장:**")
-        st.markdown(f"<div class='sentence-card' style='background-color: #e3f2fd; border-left: 4px solid #1976d2;'><div class='role-label' style='color: #1976d2;'>나</div><div class='eng-text'>{my_turn[1]}</div><div class='kor-text'>{my_turn[2]}</div></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='sentence-card' style='border-left: 4px solid #4facfe;'><div style='font-size: 13px; font-weight: bold; color: #4facfe; margin-bottom: 5px;'>나</div><div class='eng-text'>{my_turn[1]}</div><div class='kor-text'>{my_turn[2]}</div></div>", unsafe_allow_html=True)
         
         st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
         audio_value = audio_recorder(text="마이크를 누르고 말씀하세요", icon_size="2x", pause_threshold=3.0)
@@ -152,21 +169,21 @@ elif st.session_state.page == 'today':
             st.info("아직 녹음된 기록이 없습니다. '실전 롤플레잉' 탭에서 연습을 시작해 보세요!")
         else:
             for record in reversed(st.session_state.my_records):
-                st.markdown(f"<div class='sentence-card' style='background-color: #ffffff; border: 1px solid #e0e0e0;'><span style='color: #888; font-size: 12px;'>{record['topic']}</span><br><span class='eng-text'>🗣️ {record['said']}</span></div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='sentence-card' style='border-left: 4px solid #4facfe;'><span style='color: #8bb4e6; font-size: 12px;'>{record['topic']}</span><br><span class='eng-text'>🗣️ {record['said']}</span></div>", unsafe_allow_html=True)
 
 # ==========================================
-# 🔄 3. 어제 복습 & 🚀 4. 내일 예습 (임시 화면)
+# 🔄 3. 어제 복습 & 🚀 4. 내일 예습
 # ==========================================
 elif st.session_state.page == 'yesterday':
     if st.button("🔙 첫 화면으로 돌아가기"):
         go_to_page('cover')
         st.rerun()
-    st.title("🔄 어제 복습")
+    st.markdown("<div class='title-text'>🔄 어제 복습</div>", unsafe_allow_html=True)
     st.info("여기는 어제 연습했던 문장들을 복습하는 공간입니다. (곧 업데이트 예정입니다!)")
 
 elif st.session_state.page == 'tomorrow':
     if st.button("🔙 첫 화면으로 돌아가기"):
         go_to_page('cover')
         st.rerun()
-    st.title("🚀 내일 예습")
+    st.markdown("<div class='title-text'>🚀 내일 예습</div>", unsafe_allow_html=True)
     st.info("여기는 내일 배울 대본을 미리 들어보는 공간입니다. (곧 업데이트 예정입니다!)")
