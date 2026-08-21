@@ -3,24 +3,13 @@ from gtts import gTTS
 import io
 from audio_recorder_streamlit import audio_recorder
 
-# 화면을 넓게 쓰도록 layout="wide" 추가
 st.set_page_config(page_title="나만의 영어 단짝", page_icon="🗣️", layout="wide")
 
 # -------------------------------------------------------------
-# 📚 무한 대화 은행 (이곳에 시나리오를 계속 추가할 수 있습니다)
+# 📚 무한 대화 은행 (이곳에 매일 새로운 시나리오를 추가하세요!)
 # -------------------------------------------------------------
 scenarios = {
-    "⛳ 파크골프 라운딩": {
-        "description": "해외 파크골프장에 도착해 체크인하고 라운딩을 시작합니다.",
-        "image": "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?q=80&w=1000&auto=format&fit=crop",
-        "dialogue": [
-            ("직원", "Hello! Welcome to our park golf club. Do you have a reservation?", "안녕하세요! 저희 파크골프장에 오신 것을 환영합니다. 예약하셨나요?"),
-            ("나", "Yes, I booked a morning tee time under the name Kim.", "네, 김(Kim)이라는 이름으로 오전 티타임을 예약했습니다."),
-            ("직원", "Great! Do you need to rent any clubs or balls today?", "확인되었습니다! 오늘 골프채나 공 대여가 필요하신가요?"),
-            ("나", "Yes, please. I'd like to rent one park golf club and two balls.", "네, 부탁합니다. 파크골프 채 하나와 공 두 개를 대여하고 싶어요.")
-        ]
-    },
-    "✈️ 공항 입국 심사": {
+    "[오늘] ✈️ 공항 입국 심사": {
         "description": "해외 여행의 첫 관문! 긴장되는 입국 심사대에서 심사관의 질문에 대답합니다.",
         "image": "https://images.unsplash.com/photo-1436491865332-7a615061c4ca?q=80&w=1000&auto=format&fit=crop",
         "dialogue": [
@@ -31,27 +20,43 @@ scenarios = {
             ("직원", "How long will you be staying?", "얼마나 머무르실 예정인가요?"),
             ("나", "I will be staying for 5 days.", "5일 동안 머무를 예정입니다.")
         ]
+    },
+    "[어제] ⛳ 파크골프 라운딩": {
+        "description": "해외 파크골프장에 도착해 체크인하고 라운딩을 시작합니다.",
+        "image": "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?q=80&w=1000&auto=format&fit=crop",
+        "dialogue": [
+            ("직원", "Hello! Welcome to our park golf club. Do you have a reservation?", "안녕하세요! 저희 파크골프장에 오신 것을 환영합니다. 예약하셨나요?"),
+            ("나", "Yes, I booked a morning tee time under the name Kim.", "네, 김(Kim)이라는 이름으로 오전 티타임을 예약했습니다."),
+            ("직원", "Great! Do you need to rent any clubs or balls today?", "확인되었습니다! 오늘 골프채나 공 대여가 필요하신가요?"),
+            ("나", "Yes, please. I'd like to rent one park golf club and two balls.", "네, 부탁합니다. 파크골프 채 하나와 공 두 개를 대여하고 싶어요.")
+        ]
     }
 }
 
 # -------------------------------------------------------------
 # 🎨 화면 구성 시작
 # -------------------------------------------------------------
-# 왼쪽 사이드바 (주제 선택)
-st.sidebar.title("📚 학습 주제 선택")
-selected_topic = st.sidebar.radio("원하는 상황을 고르세요:", list(scenarios.keys()))
+# 💡 수정된 부분: 사이드바에 '검색'이 가능한 보관소 만들기
+st.sidebar.title("📚 내 학습 보관소")
+st.sidebar.caption("지난 대화도 언제든 검색해서 다시 꺼내볼 수 있습니다.")
+
+# radio 대신 selectbox를 사용하여 타이핑 검색이 가능해집니다!
+selected_topic = st.sidebar.selectbox("🔍 원하는 상황을 검색하거나 고르세요:", list(scenarios.keys()))
+
+st.sidebar.write("---")
+st.sidebar.info("💡 **Tip:** 매일 깃허브 코드의 'scenarios' 부분에 새로운 대본을 복사해 넣으면 나만의 회화 사전이 무한대로 늘어납니다!")
 
 # 선택된 데이터 불러오기
 current_data = scenarios[selected_topic]
 dialogue = current_data["dialogue"]
 
-# 메인 화면 제목과 이미지 출력 (시각 테마)
-st.title(selected_topic)
+# 메인 화면 제목과 이미지 출력
+st.title(selected_topic.split("] ")[-1]) # 제목에서 [오늘], [어제] 글자 빼고 출력
 st.caption(current_data["description"])
 st.image(current_data["image"], use_column_width=True)
 st.write("---")
 
-# 3개의 탭 생성
+# 3개의 탭 생성 (이하 동일)
 tab1, tab2, tab3 = st.tabs(["📖 전체 대화", "🗣️ 한 문장 연습", "🎭 실전 롤플레잉"])
 
 with tab1:
@@ -87,7 +92,6 @@ with tab2:
 with tab3:
     st.subheader("3. 실전 롤플레잉")
     
-    # 턴 수에 맞게 단계 자동 생성
     turns = [f"{i+1}단계" for i in range(len(dialogue)//2)]
     step = st.radio("진행할 대화 단계를 선택하세요:", turns, horizontal=True)
     
